@@ -3,7 +3,7 @@ INSTALL_DIR := env('INSTALL_DIR', '/usr/local/bin')
 # build gatecheck binary
 build:
     mkdir -p bin
-    go build -ldflags="-X 'main.cliVersion=$(git describe --tags)' -X 'main.gitCommit=$(git rev-parse HEAD)' -X 'main.buildDate=$(date -u +%Y-%m-%dT%H:%M:%SZ)' -X 'main.gitDescription=$(git log -1 --pretty=%B)'" -o ./bin/gtk .
+    go build -ldflags="-X 'main.cliVersion=$(git describe --tags || echo "")' -X 'main.gitCommit=$(git rev-parse HEAD)' -X 'main.buildDate=$(date -u +%Y-%m-%dT%H:%M:%SZ)' -X 'main.gitDescription=$(git log -1 --pretty=%B)'" -o ./bin/gtk .
 
 # build and install binary
 install: build
