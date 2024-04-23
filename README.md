@@ -1,4 +1,4 @@
-# GitOps-Toolkit
+# GitOps DeployKit
 
 A simple utility for performing common GitOps tasks.
 
@@ -29,12 +29,12 @@ An alternative solution is to rebase and retry if the push fails.
 The logic here seems simple but usually results in unreadable bash script that's
 hard to debug and even harder to maintain.
 
-GTK handles this complexity by providing two methods, exponential back-off and
+GDK handles this complexity by providing two methods, exponential back-off and
 random back-off.
 
 It also handles cloning the manifest repository and running the kustomize set
 image command.
 
 ```shell
-gtk deploy kustomize --repository [SOME REPO URL] --service [SOME SERVICE] --image some-image:latest --service-directory [SOME SUB DIR (ex. prod/dev)]
+gdk deploy kustomize --repository [SOME REPO URL] --service [SOME SERVICE] --image some-image:latest --service-directory [SOME SUB DIR (ex. prod/dev)]
 ```

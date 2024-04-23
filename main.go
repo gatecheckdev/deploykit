@@ -47,8 +47,8 @@ func run() int {
 
 func newCommand() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "gtk",
-		Short: "GitOps Toolkit - A utility for common GitOps tasks",
+		Use:   "gdk",
+		Short: "GitOps DeployKit - A utility for common GitOps tasks",
 	}
 	versionCmd := &cobra.Command{
 		Use:   "version",
@@ -135,7 +135,7 @@ func runDeployKustomize(cmd *cobra.Command, _ []string) error {
 			return err
 		}
 	case repository != "":
-		directory, err = os.MkdirTemp("", "gtk-*")
+		directory, err = os.MkdirTemp("", "gdk-*")
 		if err != nil {
 			return err
 		}

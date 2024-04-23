@@ -1,4 +1,4 @@
-module github.com/bacchusjackson/gitops-toolkit
+module github.com/gatecheckdev/deploykit
 
 go 1.22.1
 
