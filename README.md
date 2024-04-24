@@ -3,7 +3,7 @@
 A simple utility for performing common GitOps tasks.
 
 If you are using ssh to clone, you may need to add to the `known_host` since
-this isn't done by GTK.
+this isn't done by DeployKit.
 
 ```shell
 ssh-keyscan github.com >> ~/.ssh/known_hosts
@@ -29,12 +29,12 @@ An alternative solution is to rebase and retry if the push fails.
 The logic here seems simple but usually results in unreadable bash script that's
 hard to debug and even harder to maintain.
 
-GDK handles this complexity by providing two methods, exponential back-off and
-random back-off.
+DeployKit handles this complexity by providing two methods, exponential back-off
+and random back-off.
 
 It also handles cloning the manifest repository and running the kustomize set
 image command.
 
 ```shell
-gdk deploy kustomize --repository [SOME REPO URL] --service [SOME SERVICE] --image some-image:latest --service-directory [SOME SUB DIR (ex. prod/dev)]
+deploykit deploy kustomize --repository [SOME REPO URL] --service [SOME SERVICE] --image some-image:latest --service-directory [SOME SUB DIR (ex. prod/dev)]
 ```

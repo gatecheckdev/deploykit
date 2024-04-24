@@ -24,7 +24,7 @@ var (
 
 var globalDefaultStdout = os.Stdout
 var globalDefaultStderr = os.Stderr
-var globalDefaultMsg = "gtk deploy: service %s update image to %s"
+var globalDefaultMsg = "deploykit: service %s update image to %s"
 
 func main() {
 	os.Exit(run())
@@ -47,7 +47,7 @@ func run() int {
 
 func newCommand() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "gdk",
+		Use:   "deploykit",
 		Short: "GitOps DeployKit - A utility for common GitOps tasks",
 	}
 	versionCmd := &cobra.Command{
