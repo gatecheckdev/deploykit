@@ -1,7 +1,11 @@
 name: image-delivery
 run-name: "Docker Action Image Build and Push: ${{ github.event.head_commit.message }}"
 on:
+  push:
+    branches:
+      - "main"
   workflow_dispatch:
+
 jobs:
   build-image:
     runs-on: ubuntu-latest
