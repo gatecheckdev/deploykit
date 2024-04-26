@@ -25,7 +25,7 @@ var (
 
 var globalDefaultStdout = os.Stdout
 var globalDefaultStderr = os.Stderr
-var globalDefaultMsg = "deploykit: service %s update image to %s"
+var globalDefaultMsgFmt = "deploykit: service %s update image to %s"
 
 func main() {
 	os.Exit(run())
@@ -131,11 +131,11 @@ func runDeployKustomize(cmd *cobra.Command, _ []string) error {
 	repository, _ := cmd.Flags().GetString("repository")
 	service, _ := cmd.Flags().GetString("service")
 	image, _ := cmd.Flags().GetString("image")
-	message, _ := cmd.Flags().GetString("message")
 	skipPush, _ := cmd.Flags().GetBool("skip-push")
 	serviceDirectory, _ := cmd.Flags().GetString("service-directory")
 	retryAttempts, _ := cmd.Flags().GetInt("attempts")
 	backoffMethod, _ := cmd.Flags().GetString("backoff-method")
+	message, _ := cmd.Flags().GetString("message")
 
 	// Check for environment variables - non empty flag values take priority
 	// non empty flag value > env variable > default
@@ -143,12 +143,14 @@ func runDeployKustomize(cmd *cobra.Command, _ []string) error {
 	repository = pickOneString("", os.Getenv("DK_REPOSITORY"), repository)
 	service = pickOneString("", os.Getenv("DK_SERVICE"), service)
 	image = pickOneString("", os.Getenv("DK_IMAGE"), image)
-	message = pickOneString(globalDefaultMsg, os.Getenv("DK_MESSAGE"), message)
 	serviceDirectory = pickOneString("", os.Getenv("DK_SERVICE_DIRECTORY"), serviceDirectory)
 	backoffMethod = pickOneString("random", os.Getenv("DK_BACKOFF_METHOD"), backoffMethod)
 
+	defaultMessage := fmt.Sprintf(globalDefaultMsgFmt, serviceDirectory, image)
+	message = pickOneString(defaultMessage, os.Getenv("DK_MESSAGE"), message)
+
 	if message == "" {
-		message = fmt.Sprintf(globalDefaultMsg, service, image)
+		message = fmt.Sprintf(defaultMessage, service, image)
 	}
 
 	retryAttemptsEnv, err := strconv.ParseInt(os.Getenv("DK_RETRY_ATTEMPTS"), 10, 64)
