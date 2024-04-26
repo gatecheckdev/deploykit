@@ -1,6 +1,6 @@
 FROM golang:alpine3.19 as build-kustomize
 
-RUN apk update && apk add make gcc git musl-dev openssh
+RUN apk update && apk add make gcc git musl-dev openssh bash
 
 RUN git clone --depth=1 --single-branch https://github.com/kubernetes-sigs/kustomize.git && \
     cd kustomize && \
