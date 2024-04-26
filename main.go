@@ -6,6 +6,7 @@ import (
 	"os"
 	"path"
 	"runtime"
+	"strconv"
 	"strings"
 	"time"
 
@@ -108,6 +109,21 @@ Compiler:       %s
 	)
 }
 
+// pickOneString in priority order of lowest to highest, skipping empty values
+//
+// Will return the last non empty value
+// ex. pickOneString("default value", "one", "","two")
+// two will be returned in this case
+func pickOneString(values ...string) string {
+	value := ""
+	for _, v := range values {
+		if v != "" {
+			value = v
+		}
+	}
+	return value
+}
+
 func runDeployKustomize(cmd *cobra.Command, _ []string) error {
 	var err error
 
@@ -121,8 +137,23 @@ func runDeployKustomize(cmd *cobra.Command, _ []string) error {
 	retryAttempts, _ := cmd.Flags().GetInt("attempts")
 	backoffMethod, _ := cmd.Flags().GetString("backoff-method")
 
+	// Check for environment variables - non empty flag values take priority
+	// non empty flag value > env variable > default
+	directory = pickOneString("", os.Getenv("DK_DIRECTORY"), directory)
+	repository = pickOneString("", os.Getenv("DK_REPOSITORY"), repository)
+	service = pickOneString("", os.Getenv("DK_SERVICE"), service)
+	image = pickOneString("", os.Getenv("DK_IMAGE"), image)
+	message = pickOneString(globalDefaultMsg, os.Getenv("DK_MESSAGE"), message)
+	serviceDirectory = pickOneString("", os.Getenv("DK_SERVICE_DIRECTORY"), serviceDirectory)
+	backoffMethod = pickOneString("random", os.Getenv("DK_BACKOFF_METHOD"), backoffMethod)
+
 	if message == "" {
 		message = fmt.Sprintf(globalDefaultMsg, service, image)
+	}
+
+	retryAttemptsEnv, err := strconv.ParseInt(os.Getenv("DK_RETRY_ATTEMPTS"), 10, 64)
+	if err == nil {
+		retryAttempts = int(retryAttemptsEnv)
 	}
 
 	shell := NewShell(WithWorkingDirectory(directory))

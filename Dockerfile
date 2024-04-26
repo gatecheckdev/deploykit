@@ -1,3 +1,11 @@
+FROM golang:alpine3.19 as build-kustomize
+
+RUN apk update && apk add make gcc git musl-dev
+
+RUN git clone --depth=1 --single-branch git@github.com:kubernetes-sigs/kustomize.git && \
+    cd kustomize && \
+    make kustomize
+
 FROM golang:alpine3.19 as build
 
 ARG VERSION
@@ -20,7 +28,11 @@ RUN mkdir -p ../bin && \
 
 FROM alpine:latest
 
-COPY --from=build /app/bin/deploykit /usr/local/bin/deploykit
+COPY --from=build /app/bin/deploykit /usr/local/bin/
+COPY --from=build-kustomize /go/bin/kustomize /usr/local/bin/
+
+RUN apk update && \
+    apk add git
 
 LABEL org.opencontainers.image.created=${BUILD_DATE} \
     org.opencontainers.image.authors="Bacchus Jackson" \
