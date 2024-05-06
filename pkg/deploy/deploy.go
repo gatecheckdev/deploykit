@@ -1,4 +1,4 @@
-package main
+package deploy
 
 import (
 	"errors"
@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"math"
 	"math/rand/v2"
+	"os"
 	"os/exec"
 	"time"
 )
@@ -28,8 +29,8 @@ func WithWorkingDirectory(dir string) shellOption {
 
 func NewShell(options ...shellOption) *Shell {
 	shell := &Shell{
-		stdout: globalDefaultStdout,
-		stderr: globalDefaultStderr,
+		stdout: os.Stdout,
+		stderr: os.Stderr,
 	}
 
 	for _, optionFunc := range options {
@@ -47,19 +48,19 @@ func (s *Shell) KustomizeEdit(arg string) error {
 	return s.Run("kustomize", "edit", "set", "image", arg)
 }
 
-func (s *Shell) gitPullRebase() error {
+func (s *Shell) GitPullRebase() error {
 	return s.Run("git", "pull", "--rebase")
 }
 
-func (s *Shell) gitCommitAll(msg string) error {
+func (s *Shell) GitCommitAll(msg string) error {
 	return s.Run("git", "commit", "--all", "--message", msg)
 }
 
-func (s *Shell) gitPush() error {
+func (s *Shell) GitPush() error {
 	return s.Run("git", "push")
 }
 
-func (s *Shell) gitClone(repo string, dst string) error {
+func (s *Shell) GitClone(repo string, dst string) error {
 	return s.Run("git", "clone", "repo", dst)
 }
 
@@ -73,11 +74,11 @@ func (s *Shell) Run(name string, args ...string) error {
 }
 
 type rebaser interface {
-	gitPullRebase() error
+	GitPullRebase() error
 }
 
 type pusher interface {
-	gitPush() error
+	GitPush() error
 }
 
 type rebaserPusher interface {
@@ -85,7 +86,7 @@ type rebaserPusher interface {
 	pusher
 }
 
-func rebasePushLoop(shell rebaserPusher, retryAttempts int, timeCoefficient time.Duration, backoff backoffFunc) error {
+func RebasePushLoop(shell rebaserPusher, retryAttempts int, timeCoefficient time.Duration, backoff BackoffFunc) error {
 	slog.Info("git rebase and push loop", "retry_attempts", retryAttempts, "time_coefficient", timeCoefficient)
 	if retryAttempts < 1 {
 		slog.Warn("setting retry attempts to default of 1")
@@ -99,13 +100,13 @@ func rebasePushLoop(shell rebaserPusher, retryAttempts int, timeCoefficient time
 	// Rebase / Push Loop
 	for _, sleepDuration := range sleepDurations {
 		attempted++
-		err := shell.gitPullRebase()
+		err := shell.GitPullRebase()
 		if err != nil {
 			slog.Error("pull with rebase failure", "attempted", attempted)
 			return err
 		}
 
-		err = shell.gitPush()
+		err = shell.GitPush()
 
 		// If the push worked
 		if err == nil {
@@ -120,9 +121,9 @@ func rebasePushLoop(shell rebaserPusher, retryAttempts int, timeCoefficient time
 	return errors.New("all push attempts failed")
 }
 
-type backoffFunc func(sleepDurations []int)
+type BackoffFunc func(sleepDurations []int)
 
-func exponentialBackoff(base int) backoffFunc {
+func ExponentialBackoff(base int) BackoffFunc {
 	return func(sleepDurations []int) {
 		for i := range sleepDurations {
 			sleepDurations[i] = int(math.Pow(float64(base), float64(i)))
@@ -130,7 +131,7 @@ func exponentialBackoff(base int) backoffFunc {
 	}
 }
 
-func randomBackoff(max int) backoffFunc {
+func RandomBackoff(max int) BackoffFunc {
 	return func(sleepDurations []int) {
 		for i := range sleepDurations {
 			sleepDurations[i] = randomNumberGenerator.IntN(max) + 1

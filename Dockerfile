@@ -1,4 +1,4 @@
-FROM golang:alpine3.19 as build-kustomize
+FROM golang:alpine as build-kustomize
 
 RUN apk update && apk add make gcc git musl-dev openssh bash
 
@@ -6,7 +6,7 @@ RUN git clone --depth=1 --single-branch https://github.com/kubernetes-sigs/kusto
     cd kustomize && \
     make kustomize
 
-FROM golang:alpine3.19 as build
+FROM golang:alpine as build
 
 ARG VERSION
 ARG GIT_COMMIT
@@ -24,7 +24,7 @@ COPY . .
 RUN go mod download
 
 RUN mkdir -p ../bin && \
-    go build -ldflags="-X 'main.cliVersion=${VERSION}' -X 'main.gitCommit=${GIT_COMMIT}' -X 'main.buildDate=$(date -u +%Y-%m-%dT%H:%M:%SZ)' -X 'main.gitDescription=${GIT_DESCRIPTION}'" -o ../bin/deploykit .
+    go build -ldflags="-X 'main.cliVersion=${VERSION}' -X 'main.gitCommit=${GIT_COMMIT}' -X 'main.buildDate=$(date -u +%Y-%m-%dT%H:%M:%SZ)' -X 'main.gitDescription=${GIT_DESCRIPTION}'" -o ../bin/deploykit ./cmd/deploykit
 
 FROM alpine:latest
 
