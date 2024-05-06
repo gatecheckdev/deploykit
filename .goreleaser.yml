@@ -8,7 +8,7 @@ before:
     - go mod tidy
 
 builds:
-  - main: .
+  - main: ./cmd/deploykit
     env:
       - CGO_ENABLED=0
     goos:
@@ -33,4 +33,3 @@ changelog:
     exclude:
       - '^docs:'
       - '^test:'
-
