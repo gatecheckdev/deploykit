@@ -215,7 +215,7 @@ func runPrintAction(cmd *cobra.Command, _ []string) {
 		}
 		input := deploy.GitHubActionInput{
 			Description: field.Metadata["flag_usage"],
-			Default:     field.DefaultValue,
+			Default:     fmt.Sprintf("%v", field.DefaultValue),
 			Required:    required,
 		}
 		inputName := field.Metadata["action_input_name"]

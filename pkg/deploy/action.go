@@ -9,7 +9,7 @@ type GitHubAction struct {
 
 type GitHubActionInput struct {
 	Description string `yaml:"description"`
-	Default     any    `yaml:"default,omitempty"`
+	Default     string `yaml:"default,omitempty"`
 	Required    bool   `yaml:"required,omitempty"`
 }
 
