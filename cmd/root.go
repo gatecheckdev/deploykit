@@ -220,7 +220,7 @@ func runPrintAction(cmd *cobra.Command, _ []string) {
 		}
 		inputName := field.Metadata["action_input_name"]
 		action.Inputs[inputName] = input
-		action.Runs.Env[inputName] = fmt.Sprintf("${{ inputs.%s }}", inputName)
+		action.Runs.Env[field.EnvKey] = fmt.Sprintf("${{ inputs.%s }}", inputName)
 	}
 
 	err := yaml.NewEncoder(cmd.OutOrStdout()).Encode(&action)
