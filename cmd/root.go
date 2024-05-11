@@ -223,6 +223,11 @@ func runPrintAction(cmd *cobra.Command, _ []string) {
 		action.Runs.Env[field.EnvKey] = fmt.Sprintf("${{ inputs.%s }}", inputName)
 	}
 
+	action.Inputs["manifest_deploy_token"] = deploy.GitHubActionInput{
+		Description: "The token used to read/write to the manifest repository",
+		Required:    false,
+	}
+
 	err := yaml.NewEncoder(cmd.OutOrStdout()).Encode(&action)
 	if err != nil {
 		slog.Error("failed encoding", "error", err)
