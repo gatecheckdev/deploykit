@@ -64,6 +64,8 @@ var deployCmd = &cobra.Command{
 	Short: "deploy using one of the supported methods/tools",
 }
 
+var actionImage = "docker://ghcr.io/gatecheckdev/deploykit-action:v1.0.0-rc.1"
+
 func NewDeployKitCmd() *cobra.Command {
 	deployKitCmd.SilenceUsage = true
 
@@ -74,6 +76,8 @@ func NewDeployKitCmd() *cobra.Command {
 	RuntimeMetaConfig.Message.SetupCobra(kustomizeCmd)
 	RuntimeMetaConfig.ServiceDirectory.SetupCobra(kustomizeCmd)
 	RuntimeMetaConfig.SkipPush.SetupCobra(kustomizeCmd)
+
+	printActionCmd.Flags().String("action-image", actionImage, "the image to use for the action")
 
 	deployCmd.AddCommand(kustomizeCmd)
 	deployKitCmd.AddCommand(versionCmd, printConfigCmd, printActionCmd, deployCmd)
@@ -170,7 +174,7 @@ func runDeployKustomize(cmd *cobra.Command, _ []string) error {
 }
 
 func runPrintConfig(cmd *cobra.Command, _ []string) {
-	table := tablewriter.NewWriter(cmd.OutOrStderr())
+	table := tablewriter.NewWriter(cmd.OutOrStdout())
 
 	table.SetHeader([]string{"Name", "Field Type", "Default", "flag_name", "Env Variable Key", "Required"})
 	configFields := configkit.AllMetaFields(RuntimeMetaConfig)
@@ -195,13 +199,18 @@ func runPrintConfig(cmd *cobra.Command, _ []string) {
 }
 
 func runPrintAction(cmd *cobra.Command, _ []string) {
+
+	actionImage, _ := cmd.Flags().GetString("action-image")
+
+	slog.Debug("run print action", "image", actionImage)
+
 	action := deploy.GitHubAction{
 		Name:        "GitOps Deploykit",
 		Description: "GitOps Style Manifest update with Kustomize",
 		Inputs:      map[string]deploy.GitHubActionInput{},
 		Runs: deploy.GitHubActionRuns{
 			Using: "docker",
-			Image: "Dockerfile",
+			Image: actionImage,
 			Env:   map[string]string{},
 		},
 	}
